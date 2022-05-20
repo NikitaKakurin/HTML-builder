@@ -6,8 +6,8 @@ const sourceFilesPath = path.join(__dirname, 'files');
   await fs.promises.mkdir(targetFilesPath,{recursive:true});
 
   const filesTarget = await fs.promises.readdir(targetFilesPath);
-  filesTarget.forEach((file)=>{
-    fs.promises.unlink(path.join(targetFilesPath, file));
+  filesTarget.forEach(async(file)=>{
+    return await fs.promises.unlink(path.join(targetFilesPath, file));
   });
 
   let filesSource;
@@ -16,8 +16,8 @@ const sourceFilesPath = path.join(__dirname, 'files');
   } catch(err){
     console.log('readdirError ' + err.message);
   }  
-  filesSource.forEach((file) => {
-    fs.promises.copyFile(path.join(sourceFilesPath, file), path.join(targetFilesPath, file));
+  filesSource.forEach(async(file) => {
+    return await fs.promises.copyFile(path.join(sourceFilesPath, file), path.join(targetFilesPath, file));
   });
 })();
 
