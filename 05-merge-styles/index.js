@@ -6,9 +6,9 @@ const sourceFilesPath = path.join(__dirname, 'styles');
   let filesTarget;
   try{
     filesTarget = await fs.promises.readdir(targetFilesPath);
-    filesTarget.forEach((file)=>{
+    filesTarget.forEach(async(file)=>{
       if(file !== 'index.html'){
-        fs.promises.unlink(path.join(targetFilesPath, file));
+        return await fs.promises.unlink(path.join(targetFilesPath, file));
       }    
     });
   } catch(err){
@@ -18,15 +18,13 @@ const sourceFilesPath = path.join(__dirname, 'styles');
 
   let filesSource;
   try{
-   
-    let bundleText = '';
     filesSource = await fs.promises.readdir(sourceFilesPath);
-    filesSource.forEach((file) => {
+    filesSource.forEach(async (file) => {
       const sourceFilePath = path.join(sourceFilesPath, file);
       if(path.parse(sourceFilePath).ext === '.css'){
-        const readStream = fs.createReadStream(sourceFilePath, 'utf-8');
-        readStream.on('data', (chunk) => {
-          fs.promises.appendFile(path.join(targetFilesPath, 'bundle.css'), chunk);
+        const readStream = await fs.createReadStream(sourceFilePath, 'utf-8');
+        readStream.on('data', async (chunk) => {
+          return await fs.promises.appendFile(path.join(targetFilesPath, 'bundle.css'), chunk);
         });
       }
     });
