@@ -16,7 +16,8 @@ const sourceFilesPath = path.join(__dirname, 'styles');
         }
         if(file !== 'index.html'){
           return await fs.promises.unlink(targetPath);
-        }    
+        }
+        return promise;
       });
       return prom;
     } catch(err){
