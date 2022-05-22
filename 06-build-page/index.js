@@ -4,6 +4,8 @@ const projectDist = path.join(__dirname, 'project-dist');
 const projectDistAssets = path.join(projectDist, 'assets');
 const assets = path.join(__dirname, 'assets');
 const sourceStyles = path.join(__dirname, 'styles');
+const template = path.join(__dirname, 'template.html');
+const components = path.join(__dirname, 'components');
 
 (async() => {
   async function clearAssets(folderPath) {
@@ -54,36 +56,37 @@ const sourceStyles = path.join(__dirname, 'styles');
         return cssText;
       };
       const styles = await readCss();
-      return await fs.promises.writeFile(path.join(projectDist, 'styles.css'), styles);
+      return await fs.promises.writeFile(path.join(projectDist, 'style.css'), styles);
     } catch(err){
       console.log('readSourceError ' + err.message);
     }  
   }
   await bundleCss(sourceStyles);
 
-  // async function createHTML(params) {
+  async function createHTML(template) {
+    try{
+      const html = await fs.promises.readFile(template, 'utf-8');
+      const regexp = new RegExp('{{\\w+}}','gm');
+      const templatesArray = [...html.matchAll(regexp)];
     
-  // }
-  
+      const setTemplate = templatesArray.reduce(async (htmlTemplate, htmlComponents) => {
+        const template = await htmlTemplate;
+        const componentsName = htmlComponents[0].slice(2,-2) + '.html';
+        const componentsPath = path.join(components, componentsName);
+        const stats = await fs.promises.stat(componentsPath);
+        if(stats.isDirectory()) return template;
+        const componentsContent = await fs.promises.readFile(componentsPath, 'utf-8');
+        return template.replace(htmlComponents[0],componentsContent);
+      },html);
+      
+      const textHTML = await setTemplate;
+      return await fs.promises.writeFile(path.join(projectDist, 'index.html'), textHTML);
+    } catch(err){
+      console.log('createHTMLError: ' + err.message);
+    }
+  }
+  await createHTML(template);
 })();
 
 
 
-// const readStream = await fs.createReadStream(sourceFilePath, 'utf-8');
-// // readStream.on('data', async (chunk) => {
-// //   return await fs.promises.appendFile(path.join(projectDist, 'style.css'), chunk);
-// // });
-// readStream.on('data', async (chunk) => {
-//   css+=chunk;
-//   console.log('css -- '+ css.length);
-//   console.log('file -- '+sourceFilePath);
-// });
-// readStream.on('end', () => {
-//   if(css.includes('@font-face {')){
-//     allStyles = css + allStyles ;
-//   } else{
-//     allStyles += css;
-//   }
-//   console.log('allStyles -- '+ allStyles.length);
-//   console.log('file -- '+sourceFilePath);
-// });
