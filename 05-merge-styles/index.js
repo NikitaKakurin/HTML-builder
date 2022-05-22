@@ -7,7 +7,7 @@ const sourceFilesPath = path.join(__dirname, 'styles');
   async function clearFolder(folder) {
     try{
       const filesTarget = await fs.promises.readdir(folder);
-      const prom = filesTarget.reduce(async(acc,file)=>{
+      const prom = await filesTarget.reduce(async(acc,file)=>{
         const promise = await acc;
         const targetPath = path.join(folder, file);
         const stats = await fs.promises.stat(targetPath);
@@ -18,7 +18,7 @@ const sourceFilesPath = path.join(__dirname, 'styles');
           return await fs.promises.unlink(targetPath);
         }
         return promise;
-      });
+      }, '');
       return prom;
     } catch(err){
       console.log('cleanTargetError ' + err.message);
