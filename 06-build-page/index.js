@@ -35,10 +35,10 @@ const components = path.join(__dirname, 'components');
   await copyAssets('');
 
   async function bundleCss(folder) {
-    let filesSource;
+  
     try{
       const readCss = async function () {
-        filesSource = await fs.promises.readdir(folder);
+        const filesSource = await fs.promises.readdir(folder);
         let cssText = filesSource.reduce(async (text, file) => {
           const sourceFilePath = path.join(folder, file);
           const stats = await fs.promises.stat(sourceFilePath);
