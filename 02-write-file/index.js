@@ -7,7 +7,7 @@ const writeStream = fs.createWriteStream(pathToFile);
 stdout.write('---Please enter text---\n');
 stdin.on('data', (data) => {
   const text = data.toString();
-  if(text.slice(0,-2).trim()=='exit'){
+  if(text.trim()=='exit'){
     return process.exit();    
   }
   writeStream.write(text);
