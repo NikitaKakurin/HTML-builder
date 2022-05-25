@@ -14,29 +14,32 @@ const components = path.join(__dirname, 'components');
   await clearAssets(projectDist);  
   
   async function copyAssets(addFolderPath) {
-    let additionalPath = addFolderPath||'';
-    let pathToFile = path.join(assets, addFolderPath);
-    let filesSource;
-    try{
-      filesSource = await fs.promises.readdir(pathToFile);
+    try{      
+      let additionalPath = addFolderPath||[''];
+      let pathToFile = path.join(assets,...additionalPath);
+
+      const filesSource = await fs.promises.readdir(pathToFile);
       const prom = filesSource.reduce(async(acc, file) => {
         const promise = await acc;
         const stats = await fs.promises.stat(path.join(pathToFile, file));
+
         if(stats.isDirectory()){
-          await fs.promises.mkdir(path.join(projectDistAssets, additionalPath, file),{recursive:true});
-          return copyAssets(additionalPath + file);
+          await fs.promises.mkdir(path.join(projectDistAssets, ...additionalPath, file),{recursive:true});
+          return copyAssets([...additionalPath, file]);
         }
         // The promise is used to eliminate the error ESlint
         promise;
-        return await fs.promises.copyFile(path.join(pathToFile, file), path.join(projectDistAssets, additionalPath, file));
+        return await fs.promises.copyFile(path.join(pathToFile, file), path.join(projectDistAssets, ...additionalPath, file));
       },'');
       return prom;
     } catch(err){
       console.log('copyError ' + err.message);
     }  
   }
+  
+  await copyAssets();
 
-  await copyAssets('');
+ 
 
 
   async function bundleCss(folder) {
