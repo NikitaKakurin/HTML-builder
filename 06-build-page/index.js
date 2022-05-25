@@ -12,7 +12,8 @@ const components = path.join(__dirname, 'components');
     return await fs.promises.rm(folderPath, { recursive: true, force: true });
   }
   await clearAssets(projectDist);  
-  
+  await fs.promises.mkdir((projectDistAssets),{recursive:true});
+
   async function copyAssets(addFolderPath) {
     try{      
       let additionalPath = addFolderPath||[''];
@@ -22,7 +23,6 @@ const components = path.join(__dirname, 'components');
       const prom = filesSource.reduce(async(acc, file) => {
         const promise = await acc;
         const stats = await fs.promises.stat(path.join(pathToFile, file));
-
         if(stats.isDirectory()){
           await fs.promises.mkdir(path.join(projectDistAssets, ...additionalPath, file),{recursive:true});
           return copyAssets([...additionalPath, file]);
@@ -38,9 +38,6 @@ const components = path.join(__dirname, 'components');
   }
   
   await copyAssets();
-
- 
-
 
   async function bundleCss(folder) {
   
